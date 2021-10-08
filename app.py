@@ -1,16 +1,12 @@
 from flask import Flask, render_template, request
 import tensorflow as tf
 
-import matplotlib.pyplot as plt
-
-import re
 import numpy as np
 import os
 import time
 import json
 import gc
 from glob import glob
-from PIL import Image
 import pickle
 import pandas as pd
 
@@ -48,13 +44,10 @@ with open('tokenizer.pickle', 'rb') as handle:
     tokenizer = pickle.load(handle)
 
 
-embedding_dim = 512
-embedding_size = 512
-units = 512
+
 vocab_size = len(tokenizer.word_index) 
 max_length = 74
 max_len = max_length -1
-encoder_shape=2048
  
 reconstructed_model = load_model("model_ImageCap_Umair.h5")
 
@@ -82,27 +75,29 @@ def after():
     print("IMAGE SAVED")
 
     max_tokens = 73
-    token_start = '<start >'
-    token_end = ' <end>'
-    def preprocess(image_path):
-        img = image.load_img(image_path, target_size=(224, 224))
-        x = image.img_to_array(img)
-        x = np.expand_dims(x, axis=0)
+    START_TOKEN = '<start> '
+    END_TOKEN = ' <end>'
+    token_start = tokenizer.word_index[START_TOKEN.strip()]
+    token_end = tokenizer.word_index[END_TOKEN.strip()]
 
-        x /= 255.
-        return x
-    
-    image = preprocess('static/file.jpg')
+
+    image_path = 'static/file.jpg'
+
+    img = image.load_img(image_path, target_size=(224, 224))
+    x = image.img_to_array(img)
+    x = np.expand_dims(x, axis=0)
+    image = tf.keras.applications.resnet.preprocess_input(x)
 
     encoder_input = image_features_extract_model.predict(image)
-
+    encoder_input = tf.reshape(encoder_input,
+                                (2048, ))
     encoder_input = np.expand_dims(encoder_input, axis=0)
 
     shape = (1, max_tokens)
     decoder_input = np.zeros(shape=shape, dtype=np.int)
 
     token_id = token_start
-  
+
     output=[]
 
     count_tokens = 0
@@ -120,8 +115,9 @@ def after():
         output.append(token_id)
         
         count_tokens += 1
-    
+
     final = tokenizer.sequences_to_texts([output])
+
     
     return render_template('after.html', final = final)
 
