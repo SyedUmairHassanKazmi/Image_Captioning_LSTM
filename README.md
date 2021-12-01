@@ -2,7 +2,7 @@
  
  Author =  Syed Umair Hassan Kazmi
  
-This was built and run in kaggle    
+This was built and run both in Kaggle and Colab   
 flickr 30k dataset was used   
 Used Resnet 50 to get image features     
 Used Tensor flow data pipeline for image preprocessing    
