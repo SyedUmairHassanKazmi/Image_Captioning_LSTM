@@ -11,7 +11,7 @@ Achieved 89.* % Validation Accuracy
 
 
 -----------------------
-
+![picture](/../main/Picture/Capture1.png)
 -----------------------
 
 Will try to use glove vectors next time     
